@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using WebSockets;
 
-namespace AngularSignalR.SignalR
+namespace YouTubeWithFriends.SignalR
 {
     public class Chat : HubWithPresence
     {

@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using AngularSignalR.SignalR;
+using YouTubeWithFriends.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using WebSockets;
 
-namespace AngularSignalR
+namespace YouTubeWithFriends
 {
     public class Startup
     {
