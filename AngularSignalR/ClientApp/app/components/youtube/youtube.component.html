@@ -1,0 +1,10 @@
+﻿<div id="player">
+
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        <input #videoId class="form-control" type="text" id="videoId" placeholder="Enter Video Id" (onkey.enter)="changeVideo(videoId.value)" />
+    </div>
+    <button type="button" class="btn btn-primary" (click)="changeVideo(videoId.value)">Change</button>
+    <button type="button" class="btn btn-primary" (click)="playVideo()">Play</button>
+</div>
