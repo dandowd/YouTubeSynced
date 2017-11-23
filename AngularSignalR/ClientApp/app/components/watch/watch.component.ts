@@ -6,6 +6,8 @@ import { YouTubeComponent } from '../youtube/youtube.component';
 import { ChatComponent } from '../chat/chat.component';
 import { UserListComponent } from '../user-list/user-list.component';
 
+import { WatchService } from './watch.service';
+
 @Component({
     selector: 'app-watch-component',
     templateUrl: './watch.component.html'
@@ -14,11 +16,18 @@ import { UserListComponent } from '../user-list/user-list.component';
 export class WatchComponent {
     private roomName: string;
     private userName: string;
+    private isLoading = true;
 
-    constructor(private route: ActivatedRoute) {
+    constructor(private route: ActivatedRoute, private watchService: WatchService) {
         this.route.params.subscribe(params => {
             this.roomName = params['roomname'];
             this.userName = params['userName'];
         });
+
+        this.watchService.loadingEmitter.subscribe((data: boolean) => {
+            this.isLoading = data;
+        });
+
+        this.watchService.roomName = this.roomName;
     }
 }

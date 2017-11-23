@@ -15,9 +15,9 @@ namespace AngularSignalR.SignalR
             await base.OnConnectedAsync();
         }
 
-        public async Task AddGroupAsync(string connectionId, string groupName)
+        public async Task AddGroupAsync(string groupName)
         {
-            await AddGroupAsync(connectionId, groupName);
+            await Groups.AddAsync(Context.ConnectionId, groupName);
         }
 
         public override Task OnUsersJoined(UserDetails[] users)
@@ -30,10 +30,9 @@ namespace AngularSignalR.SignalR
             return Clients.Client(Context.ConnectionId).InvokeAsync("UsersLeft", users);
         }
 
-        public async Task Send(string message)
+        public async Task Send(string message, string groupName)
         {
-            
-            await Clients.All.InvokeAsync("Send", message);
+            await Clients.Group(groupName).InvokeAsync("Send", message);
         }
     }
 }

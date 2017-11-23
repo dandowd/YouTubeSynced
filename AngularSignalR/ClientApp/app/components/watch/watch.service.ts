@@ -8,11 +8,13 @@ export class WatchService {
     private _hubConnection: HubConnection;
     public async: any;
     public roomName: string;
+    public isLoading = true;
+    loadingEmitter = new EventEmitter<boolean>();
     recieveEmitter = new EventEmitter<any>();
     userEmitter = new EventEmitter<any>();
 
     constructor( @Inject(WATCH_CONFIG) private config: IWatchConfig) {
-        this.startSignalR();     
+        this.startSignalR();    
     }
 
     private startSignalR() {
@@ -34,6 +36,9 @@ export class WatchService {
         this._hubConnection.start()
             .then(() => {
                 console.log('Hub connection started')
+                this.isLoading = false;
+                this.loadingEmitter.emit(this.isLoading);
+                this.joinRoom(this.roomName);
             })
             .catch(err => {
                 console.log('Error while establishing connection')
@@ -41,15 +46,13 @@ export class WatchService {
     }
 
     public joinRoom(roomName: string): void {
-        const data = roomName;
-
-        this._hubConnection.invoke('AddGroupAsync', data);
+        this._hubConnection.invoke('AddGroupAsync', roomName);
     }
 
     public sendMessage(message: string): void {
-        const data = `Sent: ${message}`;
+        const data = `You: ${message}`;
 
-        this._hubConnection.invoke('Send', data);
+        this._hubConnection.invoke('Send', data, this.roomName);
     }
 
     ngOnInit() {

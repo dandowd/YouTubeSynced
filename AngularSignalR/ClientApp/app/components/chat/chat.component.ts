@@ -28,7 +28,5 @@ export class ChatComponent implements OnInit {
             console.log(data);
             this.messages.push(data);
         });
-
-        //this.watchService.joinRoom(this.roomName);
     }
 }
