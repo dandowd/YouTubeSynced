@@ -11,6 +11,7 @@ namespace WebSockets
     public class InMemoryUserTracker<THub> : IUserTracker<THub>
     {
         private readonly ConcurrentDictionary<HubConnectionContext, UserDetails> _usersOnline = new ConcurrentDictionary<HubConnectionContext, UserDetails>();
+        private readonly ConcurrentDictionary<string, string> _groupTracker = new ConcurrentDictionary<string, string>();
 
         public event Action<UserDetails[]> UsersJoined;
         public event Action<UserDetails[]> UsersLeft;

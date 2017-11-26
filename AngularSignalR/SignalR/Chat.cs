@@ -14,6 +14,11 @@ namespace AngularSignalR.SignalR
 
             await base.OnConnectedAsync();
         }
+        
+        public async Task SignInAsync(string userName)
+        {
+            await AddUser(Context.Connection, new UserDetails(Context.ConnectionId, userName));
+        }
 
         public async Task AddGroupAsync(string groupName)
         {

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +31,8 @@ namespace WebSockets
         private readonly HubLifetimeManager<THub> _wrappedHubLifetimeManager;
         private IHubContext<THub> _hubContext;
 
+        private ConcurrentDictionary<string, string> _groupTracker = new ConcurrentDictionary<string, string>();
+
         public PresenceHubLifetimeManager(IUserTracker<THub> userTracker, IServiceScopeFactory serviceScopeFactory,
             ILoggerFactory loggerFactory, IServiceProvider serviceProvider)
         {
@@ -47,7 +50,11 @@ namespace WebSockets
         {
             await _wrappedHubLifetimeManager.OnConnectedAsync(connection);
             _connections.Add(connection);
-            await _userTracker.AddUser(connection, new UserDetails(connection.ConnectionId, connection.User.Identity.Name));
+        }
+
+        public async Task SignInAsync(HubConnectionContext connection, string userName)
+        {
+            await Task.CompletedTask;
         }
 
         public override async Task OnDisconnectedAsync(HubConnectionContext connection)
@@ -150,12 +157,16 @@ namespace WebSockets
 
         public override Task AddGroupAsync(string connectionId, string groupName)
         {
+            _groupTracker.AddOrUpdate(connectionId, groupName, (key, oldGroup) => connectionId);
             return _wrappedHubLifetimeManager.AddGroupAsync(connectionId, groupName);
         }
 
         public override Task RemoveGroupAsync(string connectionId, string groupName)
         {
+            _groupTracker.TryRemove(connectionId, out var value);
             return _wrappedHubLifetimeManager.RemoveGroupAsync(connectionId, groupName);
         }
+
+        public Task<IEnumerable<string>> GetUsersInGroup(string groupName) => Task.FromResult(_groupTracker.Where(x => x.Value == groupName).Select(x => x.Key));
     }
 }

@@ -34,5 +34,10 @@ namespace WebSockets
         {
             return Task.CompletedTask;
         }
+
+        public virtual Task SignIn()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

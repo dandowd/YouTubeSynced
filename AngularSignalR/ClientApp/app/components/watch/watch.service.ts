@@ -8,6 +8,7 @@ export class WatchService {
     private _hubConnection: HubConnection;
     public async: any;
     public roomName: string;
+    public userName: string;
     public isLoading = true;
     loadingEmitter = new EventEmitter<boolean>();
     recieveEmitter = new EventEmitter<any>();
@@ -29,7 +30,6 @@ export class WatchService {
 
         this._hubConnection.on('SetUsersOnline', (data: any) => {
             const user = `${data} logged on`;
-            console.log('set users');
             this.userEmitter.emit(data);
         });
 
@@ -38,6 +38,8 @@ export class WatchService {
                 console.log('Hub connection started')
                 this.isLoading = false;
                 this.loadingEmitter.emit(this.isLoading);
+                console.log('username: ' + this.userName);
+                this.signIn(this.userName);
                 this.joinRoom(this.roomName);
             })
             .catch(err => {
@@ -47,6 +49,11 @@ export class WatchService {
 
     public joinRoom(roomName: string): void {
         this._hubConnection.invoke('AddGroupAsync', roomName);
+    }
+
+    public signIn(userName: string) {
+        console.log('signing')
+        this._hubConnection.invoke('SignInAsync', userName);
     }
 
     public sendMessage(message: string): void {

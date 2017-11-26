@@ -19,15 +19,18 @@ export class WatchComponent {
     private isLoading = true;
 
     constructor(private route: ActivatedRoute, private watchService: WatchService) {
+
         this.route.params.subscribe(params => {
             this.roomName = params['roomname'];
-            this.userName = params['userName'];
+            this.userName = params['username'];
         });
+
+        this.watchService.roomName = this.roomName;
+        this.watchService.userName = this.userName;
+        console.log('watchservice vars set');
 
         this.watchService.loadingEmitter.subscribe((data: boolean) => {
             this.isLoading = data;
         });
-
-        this.watchService.roomName = this.roomName;
     }
 }
