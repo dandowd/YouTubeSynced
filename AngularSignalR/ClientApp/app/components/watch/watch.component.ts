@@ -27,7 +27,6 @@ export class WatchComponent {
 
         this.watchService.roomName = this.roomName;
         this.watchService.userName = this.userName;
-        console.log('watchservice vars set');
 
         this.watchService.loadingEmitter.subscribe((data: boolean) => {
             this.isLoading = data;

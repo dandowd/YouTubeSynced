@@ -10,6 +10,8 @@ namespace WebSockets
     {
         private IUserTracker<HubWithPresence> _userTracker;
 
+        public event Action<HubConnectionContext, UserDetails> SignIn;
+
         public HubWithPresence(IUserTracker<HubWithPresence> userTracker)
         {
             _userTracker = userTracker;
@@ -24,6 +26,11 @@ namespace WebSockets
         {
             return _userTracker.AddUser(connection, user);
         }
+        
+        public Task UpdateUser(HubConnectionContext connection, UserDetails user)
+        {
+            return _userTracker.UpdateUser(connection, user);
+        }
 
         public virtual Task OnUsersJoined(UserDetails[] user)
         {
@@ -31,11 +38,6 @@ namespace WebSockets
         }
 
         public virtual Task OnUsersLeft(UserDetails[] user)
-        {
-            return Task.CompletedTask;
-        }
-
-        public virtual Task SignIn()
         {
             return Task.CompletedTask;
         }

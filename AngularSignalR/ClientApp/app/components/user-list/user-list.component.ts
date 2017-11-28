@@ -11,5 +11,6 @@ export class UserListComponent {
     users: string[] = [];
 
     constructor(private watchService: WatchService) {
+
     }
 }

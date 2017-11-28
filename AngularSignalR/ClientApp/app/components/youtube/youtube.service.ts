@@ -38,7 +38,7 @@ export class YouTubeService {
                     }
                 });
                 clearInterval(interval);
-                console.log('test ' + (<any>window).YT.Player.ready);
+                console.log('YT ready status ' + (<any>window).YT.Player.ready);
             }
         }, 100);
     }

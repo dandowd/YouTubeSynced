@@ -27,10 +27,20 @@ export class WatchService {
             this.recieveEmitter.emit(received);
         });
 
+        this._hubConnection.on('SetUsersOnline', (username: any) => {
+            const user = `${username}`;
+            console.log('SetUsersOnline' + username);
+            this.userEmitter.emit(username);
+        });
 
-        this._hubConnection.on('SetUsersOnline', (data: any) => {
-            const user = `${data} logged on`;
-            this.userEmitter.emit(data);
+        this._hubConnection.on('UsersJoined', (usersJoined: any) => {
+            const users = `${usersJoined}`;
+            console.log('Users Joined: ' + users);
+        });
+
+        this._hubConnection.on('UsersLeft', (usersLeft: any) => {
+            const users = `${usersLeft}`;
+            console.log('Users Left: ' + users);
         });
 
         this._hubConnection.start()
@@ -52,7 +62,6 @@ export class WatchService {
     }
 
     public signIn(userName: string) {
-        console.log('signing')
         this._hubConnection.invoke('SignInAsync', userName);
     }
 

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace WebSockets
@@ -11,7 +10,6 @@ namespace WebSockets
     public class InMemoryUserTracker<THub> : IUserTracker<THub>
     {
         private readonly ConcurrentDictionary<HubConnectionContext, UserDetails> _usersOnline = new ConcurrentDictionary<HubConnectionContext, UserDetails>();
-        private readonly ConcurrentDictionary<string, string> _groupTracker = new ConcurrentDictionary<string, string>();
 
         public event Action<UserDetails[]> UsersJoined;
         public event Action<UserDetails[]> UsersLeft;
@@ -28,10 +26,17 @@ namespace WebSockets
 
         public Task RemoveUser(HubConnectionContext connectionContext)
         {
-            if(_usersOnline.TryRemove(connectionContext, out var userDetails))
+            if (_usersOnline.TryRemove(connectionContext, out var userDetails))
             {
                 UsersLeft(new[] { userDetails });
             }
+
+            return Task.CompletedTask;
+        }
+
+        public Task UpdateUser(HubConnectionContext connection, UserDetails user)
+        {
+            _usersOnline.AddOrUpdate(connection, user, (key, oldvalue) => user);
 
             return Task.CompletedTask;
         }

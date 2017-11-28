@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace WebSockets
@@ -50,11 +51,7 @@ namespace WebSockets
         {
             await _wrappedHubLifetimeManager.OnConnectedAsync(connection);
             _connections.Add(connection);
-        }
-
-        public async Task SignInAsync(HubConnectionContext connection, string userName)
-        {
-            await Task.CompletedTask;
+            await _userTracker.AddUser(connection, new UserDetails(connection.ConnectionId, connection.User.Identity.Name));
         }
 
         public override async Task OnDisconnectedAsync(HubConnectionContext connection)
@@ -83,6 +80,7 @@ namespace WebSockets
                 return Task.CompletedTask;
             });
         }
+
 
         private async void OnUsersLeft(UserDetails[] users)
         {
@@ -160,7 +158,7 @@ namespace WebSockets
             _groupTracker.AddOrUpdate(connectionId, groupName, (key, oldGroup) => connectionId);
             return _wrappedHubLifetimeManager.AddGroupAsync(connectionId, groupName);
         }
-
+        
         public override Task RemoveGroupAsync(string connectionId, string groupName)
         {
             _groupTracker.TryRemove(connectionId, out var value);

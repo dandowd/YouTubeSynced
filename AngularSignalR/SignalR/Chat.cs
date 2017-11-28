@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 using WebSockets;
 
@@ -17,7 +18,7 @@ namespace AngularSignalR.SignalR
         
         public async Task SignInAsync(string userName)
         {
-            await AddUser(Context.Connection, new UserDetails(Context.ConnectionId, userName));
+            await UpdateUser(Context.Connection, new UserDetails(Context.ConnectionId, userName));
         }
 
         public async Task AddGroupAsync(string groupName)

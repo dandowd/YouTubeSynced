@@ -24,9 +24,9 @@ namespace AngularSignalR
             services.AddMvc();
             services.AddSignalR();
 
+            services.AddSingleton(typeof(IUserTracker<>), typeof(InMemoryUserTracker<>));
             services.AddSingleton(typeof(DefaultHubLifetimeManager<>), typeof(DefaultHubLifetimeManager<>));
             services.AddSingleton(typeof(HubLifetimeManager<>), typeof(DefaultPresenceHublifetimeManager<>));
-            services.AddSingleton(typeof(IUserTracker<>), typeof(InMemoryUserTracker<>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
