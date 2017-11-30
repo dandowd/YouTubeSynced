@@ -32,8 +32,6 @@ namespace WebSockets
         private readonly HubLifetimeManager<THub> _wrappedHubLifetimeManager;
         private IHubContext<THub> _hubContext;
 
-        private ConcurrentDictionary<string, string> _groupTracker = new ConcurrentDictionary<string, string>();
-
         public PresenceHubLifetimeManager(IUserTracker<THub> userTracker, IServiceScopeFactory serviceScopeFactory,
             ILoggerFactory loggerFactory, IServiceProvider serviceProvider)
         {
@@ -61,7 +59,7 @@ namespace WebSockets
             await _userTracker.RemoveUser(connection);
         }
 
-        private async void OnUsersJoined(UserDetails[] users)
+        private async void OnUsersJoined(UserDetails[] users, string groupName)
         {
             await Notify(hub =>
             {
@@ -69,22 +67,20 @@ namespace WebSockets
                 {
                     if (users[0].ConnectionId != hub.Context.ConnectionId)
                     {
-                        return hub.OnUsersJoined(users);
+                        return hub.OnUsersJoined(users, groupName);
                     }
                 }
                 else
                 {
-                    return hub.OnUsersJoined(
-                        users.Where(u => u.ConnectionId != hub.Context.Connection.ConnectionId).ToArray());
+                    return hub.OnUsersJoined(users.Where(u => u.ConnectionId != hub.Context.Connection.ConnectionId).ToArray(), groupName);
                 }
                 return Task.CompletedTask;
             });
         }
 
-
-        private async void OnUsersLeft(UserDetails[] users)
+        private async void OnUsersLeft(UserDetails[] users, string groupName)
         {
-            await Notify(hub => hub.OnUsersLeft(users));
+            await Notify(hub => hub.OnUsersLeft(users, groupName));
         }
 
         private async Task Notify(Func<THub, Task> invocation)
@@ -105,7 +101,6 @@ namespace WebSockets
                     hub.Clients = _hubContext.Clients;
                     hub.Context = new HubCallerContext(connection);
                     hub.Groups = _hubContext.Groups;
-
                     try
                     {
                         await invocation(hub);
@@ -124,8 +119,6 @@ namespace WebSockets
 
         public void Dispose()
         {
-            _userTracker.UsersJoined -= OnUsersJoined;
-            _userTracker.UsersLeft -= OnUsersLeft;
         }
 
         public override Task InvokeAllAsync(string methodName, object[] args)
@@ -155,16 +148,12 @@ namespace WebSockets
 
         public override Task AddGroupAsync(string connectionId, string groupName)
         {
-            _groupTracker.AddOrUpdate(connectionId, groupName, (key, oldGroup) => connectionId);
             return _wrappedHubLifetimeManager.AddGroupAsync(connectionId, groupName);
         }
         
         public override Task RemoveGroupAsync(string connectionId, string groupName)
         {
-            _groupTracker.TryRemove(connectionId, out var value);
             return _wrappedHubLifetimeManager.RemoveGroupAsync(connectionId, groupName);
         }
-
-        public Task<IEnumerable<string>> GetUsersInGroup(string groupName) => Task.FromResult(_groupTracker.Where(x => x.Value == groupName).Select(x => x.Key));
     }
 }

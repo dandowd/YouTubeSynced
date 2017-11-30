@@ -35,7 +35,7 @@ export class WatchService {
 
         this._hubConnection.on('UsersJoined', (usersJoined: any) => {
             const users = `${usersJoined}`;
-            console.log('Users Joined: ' + users);
+            console.log(users);
         });
 
         this._hubConnection.on('UsersLeft', (usersLeft: any) => {
@@ -49,20 +49,16 @@ export class WatchService {
                 this.isLoading = false;
                 this.loadingEmitter.emit(this.isLoading);
                 console.log('username: ' + this.userName);
-                this.signIn(this.userName);
-                this.joinRoom(this.roomName);
+                this.signIn(this.userName, this.roomName);
+                console.log('signing');
             })
             .catch(err => {
                 console.log('Error while establishing connection')
             });
     }
 
-    public joinRoom(roomName: string): void {
-        this._hubConnection.invoke('AddGroupAsync', roomName);
-    }
-
-    public signIn(userName: string) {
-        this._hubConnection.invoke('SignInAsync', userName);
+    public signIn(userName: string, roomName: string) {
+        this._hubConnection.invoke('SignInAsync', userName, roomName);
     }
 
     public sendMessage(message: string): void {

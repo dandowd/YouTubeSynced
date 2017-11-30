@@ -32,12 +32,12 @@ namespace WebSockets
             return _userTracker.UpdateUser(connection, user);
         }
 
-        public virtual Task OnUsersJoined(UserDetails[] user)
+        public virtual Task OnUsersJoined(UserDetails[] user, string groupName)
         {
             return Task.CompletedTask;
         }
 
-        public virtual Task OnUsersLeft(UserDetails[] user)
+        public virtual Task OnUsersLeft(UserDetails[] user, string groupName)
         {
             return Task.CompletedTask;
         }

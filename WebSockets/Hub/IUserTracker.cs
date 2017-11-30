@@ -12,7 +12,7 @@ namespace WebSockets
         Task RemoveUser(HubConnectionContext connection);
         Task UpdateUser(HubConnectionContext connection, UserDetails userDetails);
 
-        event Action<UserDetails[]> UsersJoined;
-        event Action<UserDetails[]> UsersLeft;
+        event Action<UserDetails[], string> UsersJoined;
+        event Action<UserDetails[], string> UsersLeft;
     }
 }

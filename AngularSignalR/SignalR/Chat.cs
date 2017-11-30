@@ -16,24 +16,21 @@ namespace AngularSignalR.SignalR
             await base.OnConnectedAsync();
         }
         
-        public async Task SignInAsync(string userName)
+        public async Task SignInAsync(string userName, string groupName)
         {
             await UpdateUser(Context.Connection, new UserDetails(Context.ConnectionId, userName));
-        }
 
-        public async Task AddGroupAsync(string groupName)
-        {
             await Groups.AddAsync(Context.ConnectionId, groupName);
         }
 
-        public override Task OnUsersJoined(UserDetails[] users)
+        public override Task OnUsersJoined(UserDetails[] users, string groupName)
         {
-            return Clients.Client(Context.ConnectionId).InvokeAsync("UsersJoined", users);
+            return Clients.Group(groupName).InvokeAsync("UsersJoined", users);
         }
 
-        public override Task OnUsersLeft(UserDetails[] users)
+        public override Task OnUsersLeft(UserDetails[] users, string groupName)
         {
-            return Clients.Client(Context.ConnectionId).InvokeAsync("UsersLeft", users);
+            return Clients.Group(groupName).InvokeAsync("UsersLeft", users);
         }
 
         public async Task Send(string message, string groupName)
