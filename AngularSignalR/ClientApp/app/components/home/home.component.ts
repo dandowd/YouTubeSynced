@@ -15,6 +15,6 @@ export class HomeComponent{
     }
 
     joinRoom() {
-        this.router.navigate(['watch', this.roomName, { username: this.userName }]);
+        this.router.navigate(['watch', this.roomName], { queryParams: { username: this.userName } });
     }
 }

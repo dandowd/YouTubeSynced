@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebSockets
 {
-    public class InMemoryUserTracker<THub> : IUserTracker<THub>
+    public class InMemoryUserTracker<THub> : IUserTracker<THub> 
     {
         private readonly ConcurrentDictionary<HubConnectionContext, UserDetails> _usersOnline = new ConcurrentDictionary<HubConnectionContext, UserDetails>();
         private readonly ConcurrentDictionary<UserDetails, string> _groupMap = new ConcurrentDictionary<UserDetails, string>();
@@ -17,8 +17,12 @@ namespace WebSockets
 
         public Task<IEnumerable<UserDetails>> UsersOnline() => Task.FromResult(_usersOnline.Values.AsEnumerable());
 
+        public Task<UserDetails> GetUserDetails(string connectionId)
+        {
+            return Task.FromResult(_usersOnline.Where(c => c.Value.ConnectionId == connectionId).Select(u => u.Value).FirstOrDefault());
+        }
 
-        public Task UpdateUser(HubConnectionContext connection, UserDetails user)
+        public Task AddOrUpdateUser(HubConnectionContext connection, UserDetails user)
         {
             _usersOnline.AddOrUpdate(connection, user, (key, oldvalue) => user);
 
@@ -34,24 +38,24 @@ namespace WebSockets
 
         public Task RemoveUser(HubConnectionContext connectionContext)
         {
-            if (_usersOnline.TryRemove(connectionContext, out var userDetails))
-            {
-                //UsersLeft(new[] { userDetails });
-            }
+            _usersOnline.TryRemove(connectionContext, out var userDetails);
+
+            RemoveUserFromRoom(userDetails);
 
             return Task.CompletedTask;
         }
 
-        public Task JoinGroup(UserDetails user, string groupName)
+        public async Task AddUserToRoom(string connectionId, string groupName)
         {
+            var user = await GetUserDetails(connectionId);
+            user.RoomName = groupName;
+
             _groupMap.AddOrUpdate(user, groupName, (key, oldvalue) => groupName);
 
-            UsersJoined(new[] { user }, groupName);
-
-            return Task.CompletedTask;
+            UsersJoined(new[] { await GetUserDetails(connectionId) }, groupName);
         }
 
-        public Task LeaveGroup(UserDetails user)
+        public Task RemoveUserFromRoom(UserDetails user)
         {
             _groupMap.TryRemove(user, out var groupName);
 

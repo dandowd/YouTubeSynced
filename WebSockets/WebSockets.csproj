@@ -9,4 +9,8 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Redis" Version="1.0.0-alpha2-final" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Sockets\" />
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 using WebSockets;
 
@@ -7,7 +6,7 @@ namespace AngularSignalR.SignalR
 {
     public class Chat : HubWithPresence
     {
-        public Chat(IUserTracker<HubWithPresence> userTracker) : base(userTracker) { }
+        public Chat(IUserTracker<Chat> userTracker) : base(userTracker) { }
 
         public override async Task OnConnectedAsync()
         {
@@ -18,9 +17,14 @@ namespace AngularSignalR.SignalR
         
         public async Task SignInAsync(string userName, string groupName)
         {
-            await UpdateUser(Context.Connection, new UserDetails(Context.ConnectionId, userName));
+            await SignInUser(Context.Connection, new UserDetails(Context.ConnectionId, userName));
 
             await Groups.AddAsync(Context.ConnectionId, groupName);
+        }
+
+        public async Task LeaveRoom(string userName, string groupName)
+        {
+            await Groups.RemoveAsync(Context.ConnectionId, groupName);
         }
 
         public override Task OnUsersJoined(UserDetails[] users, string groupName)

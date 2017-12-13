@@ -2,10 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace WebSockets
@@ -49,13 +47,13 @@ namespace WebSockets
         {
             await _wrappedHubLifetimeManager.OnConnectedAsync(connection);
             _connections.Add(connection);
-            await _userTracker.AddUser(connection, new UserDetails(connection.ConnectionId, connection.User.Identity.Name));
         }
 
         public override async Task OnDisconnectedAsync(HubConnectionContext connection)
         {
             await _wrappedHubLifetimeManager.OnDisconnectedAsync(connection);
             _connections.Remove(connection);
+
             await _userTracker.RemoveUser(connection);
         }
 
@@ -141,19 +139,21 @@ namespace WebSockets
             return _wrappedHubLifetimeManager.InvokeGroupAsync(groupName, methodName, args);
         }
 
-        public override Task InvokeUserAsync(string userId, string methodName, object[] args)
+        public override async Task InvokeUserAsync(string userId, string methodName, object[] args)
         {
-            return _wrappedHubLifetimeManager.InvokeUserAsync(userId, methodName, args);
+            await _wrappedHubLifetimeManager.InvokeUserAsync(userId, methodName, args);
         }
 
-        public override Task AddGroupAsync(string connectionId, string groupName)
+        public override async Task AddGroupAsync(string connectionId, string groupName)
         {
-            return _wrappedHubLifetimeManager.AddGroupAsync(connectionId, groupName);
+            await _userTracker.AddUserToRoom(connectionId, groupName);
+
+            await _wrappedHubLifetimeManager.AddGroupAsync(connectionId, groupName);
         }
         
-        public override Task RemoveGroupAsync(string connectionId, string groupName)
+        public override async Task RemoveGroupAsync(string connectionId, string groupName)
         {
-            return _wrappedHubLifetimeManager.RemoveGroupAsync(connectionId, groupName);
+            await _wrappedHubLifetimeManager.RemoveGroupAsync(connectionId, groupName);
         }
     }
 }

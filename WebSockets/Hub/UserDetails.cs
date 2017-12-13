@@ -23,6 +23,6 @@ namespace WebSockets
         public string ConnectionId { get; }
         public string Name { get; }
         public bool IsAdmin { get; }
-        public string GroupName { get; set; }
+        public string RoomName { get; set; }
     }
 }
