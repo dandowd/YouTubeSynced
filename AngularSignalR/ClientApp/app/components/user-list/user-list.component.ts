@@ -1,5 +1,6 @@
-﻿import { Component } from '@angular/core';
-import { WatchService, UserDetails } from '../watch/watch.service';
+﻿import { Component, DoCheck } from '@angular/core';
+import { WatchService, UserDetails, UserEvent } from '../watch/watch.service';
+import { List } from '../../../common/List';
 
 @Component({
     selector: 'app-user-list-component',
@@ -7,21 +8,30 @@ import { WatchService, UserDetails } from '../watch/watch.service';
     styleUrls: ['./user-list.css']
 })
 
-export class UserListComponent {
+export class UserListComponent implements DoCheck {
 
-    users: UserDetails[] = [];
+    private users: UserDetails[] = [];
 
     constructor(private watchService: WatchService) {
-        this.watchService.userEmitter.subscribe((data: UserDetails) => {
-            var t = data;
-            console.log(data);
-            this.users.push(data);
+        this.watchService.userEmitter.subscribe((data: UserEvent) => {
+            if (data.isJoining) {
+                this.users.push(data.user);
+                console.log(this.users);
+            }
+            else {
+                this.users.splice(this.users.indexOf(data.user), 1);
+            }
         });
 
         this.watchService.setEmitter.subscribe((data: UserDetails[]) => {
             data.forEach(value => {
+                console.log(value);
                 this.users.push(value);
             });
         })
+    }
+
+    public ngDoCheck() {
+        console.log('docheck');
     }
 }

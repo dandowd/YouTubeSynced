@@ -8,6 +8,11 @@ export interface UserDetails {
     name: string;
 }
 
+export interface UserEvent {
+    user: UserDetails;
+    isJoining: boolean;
+}
+
 @Injectable()
 export class WatchService {
     private _hubConnection: HubConnection;
@@ -17,7 +22,7 @@ export class WatchService {
     public isLoading = true;
     loadingEmitter = new EventEmitter<boolean>();
     recieveEmitter = new EventEmitter<any>();
-    userEmitter: EventEmitter<UserDetails> = new EventEmitter();
+    userEmitter: EventEmitter<UserEvent> = new EventEmitter();
     setEmitter: EventEmitter<UserDetails[]> = new EventEmitter();
 
     constructor( @Inject(WATCH_CONFIG) private config: IWatchConfig) {
@@ -38,7 +43,8 @@ export class WatchService {
         });
 
         this._hubConnection.on('UsersJoined', (usersJoined: UserDetails) => {
-            this.userEmitter.emit(usersJoined);
+            const joiningEvent: UserEvent = { user: usersJoined, isJoining: true };
+            this.userEmitter.emit(joiningEvent);
         });
 
         this._hubConnection.on('UsersLeft', (usersLeft: UserDetails) => {

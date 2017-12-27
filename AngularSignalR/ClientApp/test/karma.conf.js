@@ -7,7 +7,8 @@ module.exports = function (config) {
         frameworks: ['jasmine'],
         files: [
             '../../wwwroot/dist/vendor.js',
-            './boot-tests.ts'
+            './boot-tests.ts',
+            './list-tests.ts'
         ],
         preprocessors: {
             './boot-tests.ts': ['webpack']

@@ -57,60 +57,53 @@ namespace WebSockets
             await _userTracker.RemoveUser(connection);
         }
 
-        private async void OnUsersJoined(UserDetails[] users, string groupName)
+        private async void OnUsersJoined(UserDetails[] users, string groupName, HubConnectionContext connection)
         {
             await Notify(hub =>
             {
                 if (users.Length == 1)
                 {
-                    if (users[0].ConnectionId != hub.Context.ConnectionId)
-                    {
-                        return hub.OnUsersJoined(users, groupName);
-                    }
+                    return hub.OnUsersJoined(users, groupName);
                 }
                 else
                 {
                     return hub.OnUsersJoined(users.Where(u => u.ConnectionId != hub.Context.Connection.ConnectionId).ToArray(), groupName);
                 }
-                return Task.CompletedTask;
-            });
+            }, connection);
         }
 
-        private async void OnUsersLeft(UserDetails[] users, string groupName)
+        private async void OnUsersLeft(UserDetails[] users, string groupName, HubConnectionContext connection)
         {
-            await Notify(hub => hub.OnUsersLeft(users, groupName));
+            await Notify(hub => hub.OnUsersLeft(users, groupName), connection);
         }
 
-        private async Task Notify(Func<THub, Task> invocation)
+        private async Task Notify(Func<THub, Task> invocation, HubConnectionContext connection)
         {
-            foreach (var connection in _connections)
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
-                using (var scope = _serviceScopeFactory.CreateScope())
+                var hubActivator = scope.ServiceProvider.GetRequiredService<IHubActivator<THub>>();
+                var hub = hubActivator.Create();
+
+                if (_hubContext == null)
                 {
-                    var hubActivator = scope.ServiceProvider.GetRequiredService<IHubActivator<THub>>();
-                    var hub = hubActivator.Create();
+                    // Cannot be injected due to circular dependency
+                    _hubContext = _serviceProvider.GetRequiredService<IHubContext<THub>>();
+                }
 
-                    if (_hubContext == null)
-                    {
-                        // Cannot be injected due to circular dependency
-                        _hubContext = _serviceProvider.GetRequiredService<IHubContext<THub>>();
-                    }
-
-                    hub.Clients = _hubContext.Clients;
-                    hub.Context = new HubCallerContext(connection);
-                    hub.Groups = _hubContext.Groups;
-                    try
-                    {
-                        await invocation(hub);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Presence notification failed.");
-                    }
-                    finally
-                    {
-                        hubActivator.Release(hub);
-                    }
+                hub.Clients = _hubContext.Clients;
+                hub.Context = new HubCallerContext(connection);
+                hub.Groups = _hubContext.Groups;
+                try
+                {
+                    await invocation(hub);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Presence notification failed.");
+                }
+                finally
+                {
+                    hubActivator.Release(hub);
                 }
             }
         }
@@ -146,7 +139,7 @@ namespace WebSockets
 
         public override async Task AddGroupAsync(string connectionId, string groupName)
         {
-            await _userTracker.AddUserToRoom(connectionId, groupName);
+            await _userTracker.AddUserToRoom(_connections.Where(u => u.ConnectionId == connectionId).FirstOrDefault(), groupName);
 
             await _wrappedHubLifetimeManager.AddGroupAsync(connectionId, groupName);
         }

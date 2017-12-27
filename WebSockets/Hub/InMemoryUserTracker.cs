@@ -12,8 +12,8 @@ namespace WebSockets
         private readonly ConcurrentDictionary<HubConnectionContext, UserDetails> _usersOnline = new ConcurrentDictionary<HubConnectionContext, UserDetails>();
         private readonly ConcurrentDictionary<UserDetails, string> _groupMap = new ConcurrentDictionary<UserDetails, string>();
 
-        public event Action<UserDetails[], string> UsersJoined;
-        public event Action<UserDetails[], string> UsersLeft;
+        public event Action<UserDetails[], string, HubConnectionContext> UsersJoined;
+        public event Action<UserDetails[], string, HubConnectionContext> UsersLeft;
 
         public Task<IEnumerable<UserDetails>> UsersOnline() => Task.FromResult(_usersOnline.Values.AsEnumerable());
 
@@ -36,30 +36,30 @@ namespace WebSockets
             return Task.CompletedTask;
         }
 
-        public Task RemoveUser(HubConnectionContext connectionContext)
+        public Task RemoveUser(HubConnectionContext connection)
         {
-            _usersOnline.TryRemove(connectionContext, out var userDetails);
+            _usersOnline.TryRemove(connection, out var userDetails);
 
-            RemoveUserFromRoom(userDetails);
+            RemoveUserFromRoom(connection, userDetails);
 
             return Task.CompletedTask;
         }
 
-        public async Task AddUserToRoom(string connectionId, string groupName)
+        public async Task AddUserToRoom(HubConnectionContext connection, string groupName)
         {
-            var user = await GetUserDetails(connectionId);
+            var user = await GetUserDetails(connection.ConnectionId);
             user.RoomName = groupName;
 
             _groupMap.AddOrUpdate(user, groupName, (key, oldvalue) => groupName);
 
-            UsersJoined(new[] { await GetUserDetails(connectionId) }, groupName);
+            UsersJoined(new[] { user }, groupName, connection);
         }
 
-        public Task RemoveUserFromRoom(UserDetails user)
+        public Task RemoveUserFromRoom(HubConnectionContext connection, UserDetails user)
         {
             _groupMap.TryRemove(user, out var groupName);
 
-            UsersLeft(new[] { user }, groupName);
+            UsersLeft(new[] { user }, groupName, connection);
 
             return Task.CompletedTask;
         }

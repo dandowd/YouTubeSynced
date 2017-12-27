@@ -30,14 +30,14 @@ namespace WebSockets
             return _userTracker.AddOrUpdateUser(connection, user);
         }
 
-        public Task AddUserToRoom(string connectionId, string groupName)
+        public Task AddUserToRoom(HubConnectionContext connection, string groupName)
         {
-            return _userTracker.AddUserToRoom(connectionId, groupName);
+            return _userTracker.AddUserToRoom(connection, groupName);
         }
 
-        public Task RemoveUserFromRoom(UserDetails user)
+        public Task RemoveUserFromRoom(HubConnectionContext connection, UserDetails user)
         {
-            return _userTracker.RemoveUserFromRoom(user);
+            return _userTracker.RemoveUserFromRoom(connection, user);
         }
 
         public virtual Task OnUsersJoined(UserDetails[] user, string groupName)
