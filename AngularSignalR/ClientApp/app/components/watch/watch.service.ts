@@ -6,11 +6,17 @@ import { WATCH_CONFIG, IWatchConfig } from './watch.config';
 export interface UserDetails {
     connectionId: string;
     name: string;
+    readyStatus: boolean;
 }
 
 export interface UserEvent {
     user: UserDetails;
     isJoining: boolean;
+}
+
+export interface ReadyEvent {
+    user: string;
+    readyChange: boolean;
 }
 
 @Injectable()
@@ -20,10 +26,12 @@ export class WatchService {
     public roomName: string;
     public userName: string;
     public isLoading = true;
+    private isUserReady = false;
     loadingEmitter = new EventEmitter<boolean>();
     recieveEmitter = new EventEmitter<any>();
     userEmitter: EventEmitter<UserEvent> = new EventEmitter();
     setEmitter: EventEmitter<UserDetails[]> = new EventEmitter();
+    readyStatusEmitter: EventEmitter<ReadyEvent> = new EventEmitter();
 
     constructor( @Inject(WATCH_CONFIG) private config: IWatchConfig) {
         this.startSignalR();    
@@ -48,8 +56,14 @@ export class WatchService {
         });
 
         this._hubConnection.on('UsersLeft', (usersLeft: UserDetails) => {
-            const users = `${usersLeft}`;
-            console.log('Users Left: ' + users);
+            const joiningEvent: UserEvent = { user: usersLeft, isJoining: false };
+            this.userEmitter.emit(joiningEvent);
+        });
+
+        this._hubConnection.on('UserReady', (userName: string, readyStatus: boolean) => {
+            const userStatus: ReadyEvent = { user: userName, readyChange: readyStatus }
+            console.log(userStatus);
+            this.readyStatusEmitter.emit(userStatus);
         });
 
         this._hubConnection.start()
@@ -57,7 +71,6 @@ export class WatchService {
                 console.log('Hub connection started')
                 this.isLoading = false;
                 this.loadingEmitter.emit(this.isLoading);
-                console.log('username: ' + this.userName);
                 this.signIn(this.userName, this.roomName);
             })
             .catch(err => {
@@ -81,6 +94,19 @@ export class WatchService {
         const data = `You: ${message}`;
 
         this._hubConnection.invoke('Send', data, this.roomName);
+    }
+
+    private userReady() {
+        this._hubConnection.invoke('UserReady', this.userName, this.roomName, this.isUserReady);
+    }
+
+    public UserReadyToggle() {
+        if (this.isUserReady)
+            this.isUserReady = false;
+        else
+            this.isUserReady = true;
+
+        this.userReady();
     }
 
     ngOnInit() {

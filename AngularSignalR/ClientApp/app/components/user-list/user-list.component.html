@@ -1,7 +1,8 @@
 ﻿<div id="list">
     <ul>
-        <li *ngFor="let user of users">
-            {{user.name}}
+        <li id="{{user.name}}" *ngFor="let user of users">
+            <div class="readymarker" [ngStyle]="{'background-color': user.readyStatus == true ? 'green' : 'red' }"></div>
+            <div class="username">{{user.name}}</div>
         </li>
     </ul>
 </div>

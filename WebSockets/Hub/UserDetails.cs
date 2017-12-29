@@ -10,19 +10,19 @@ namespace WebSockets
         {
             ConnectionId = connectionId;
             Name = name;
-            IsAdmin = false;
+            ReadyStatus = false;
         }
 
         public UserDetails(string connectionId, string name, bool isAdmin)
         {
             ConnectionId = connectionId;
             Name = name;
-            IsAdmin = isAdmin;
+            ReadyStatus = isAdmin;
         }
 
         public string ConnectionId { get; }
         public string Name { get; }
-        public bool IsAdmin { get; }
+        public bool ReadyStatus { get; }
         public string RoomName { get; set; }
     }
 }

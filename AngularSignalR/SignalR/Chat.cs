@@ -41,5 +41,10 @@ namespace AngularSignalR.SignalR
         {
             await Clients.Group(groupName).InvokeAsync("Send", message);
         }
+
+        public async Task UserReady(string username, string groupName, bool isReady)
+        {
+            await Clients.Group(groupName).InvokeAsync("UserReady", username, isReady);
+        }
     }
 }

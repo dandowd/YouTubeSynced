@@ -1,5 +1,6 @@
-﻿import { Component, AfterViewInit, OnDestroy, Injectable } from '@angular/core'
+﻿import { Component, AfterViewInit, OnDestroy, Injectable, EventEmitter } from '@angular/core'
 
+import { WatchService } from '../watch/watch.service';
 import { YouTubeService } from './youtube.service';
 
 @Component({
@@ -8,8 +9,11 @@ import { YouTubeService } from './youtube.service';
 })
 
 export class YouTubeComponent implements AfterViewInit, OnDestroy {
+    constructor(private youTubeService: YouTubeService, private watchService: WatchService) {
+    }
 
-    constructor(private youTubeService: YouTubeService) {
+    ChangeReady() {
+        this.watchService.UserReadyToggle();
     }
 
     playVideo() {
@@ -18,6 +22,10 @@ export class YouTubeComponent implements AfterViewInit, OnDestroy {
 
     changeVideo(id: string) {
         this.youTubeService.changeVideo(id);
+    }
+
+    UserReady() {
+        this.watchService.UserReadyToggle();
     }
 
     ngAfterViewInit() {

@@ -1,5 +1,5 @@
-﻿import { Component, DoCheck } from '@angular/core';
-import { WatchService, UserDetails, UserEvent } from '../watch/watch.service';
+﻿import { Component, DoCheck, EventEmitter } from '@angular/core';
+import { WatchService, UserDetails, UserEvent, ReadyEvent } from '../watch/watch.service';
 import { List } from '../../../common/List';
 
 @Component({
@@ -20,6 +20,7 @@ export class UserListComponent implements DoCheck {
             }
             else {
                 this.users.splice(this.users.indexOf(data.user), 1);
+                console.log(this.users)
             }
         });
 
@@ -29,9 +30,18 @@ export class UserListComponent implements DoCheck {
                 this.users.push(value);
             });
         })
+
+        this.watchService.readyStatusEmitter.subscribe((data: ReadyEvent) => {
+            var t = this.users.find(x => x.name == data.user);
+            if (t) {
+                t.readyStatus = data.readyChange;
+                this.users.splice(this.users.indexOf(t), 1, t);
+            }
+        });
+
     }
 
     public ngDoCheck() {
-        console.log('docheck');
+        //console.log('docheck');
     }
 }
