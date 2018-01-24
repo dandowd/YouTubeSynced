@@ -20,6 +20,11 @@ namespace WebSockets
             return _userTracker.UsersOnline();
         }
 
+        public Task<string> GetUsername(string connectionId)
+        {
+            return _userTracker.GetUsername(connectionId);
+        }
+
         public Task AddUser(HubConnectionContext connection, UserDetails user)
         {
             return _userTracker.AddUser(connection, user);

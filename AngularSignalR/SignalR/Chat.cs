@@ -39,12 +39,22 @@ namespace AngularSignalR.SignalR
 
         public async Task Send(string message, string groupName)
         {
-            await Clients.Group(groupName).InvokeAsync("Send", message);
+            await Clients.Group(groupName).InvokeAsync("Send", await GetUsername(Context.ConnectionId), message);
         }
 
         public async Task UserReady(string username, string groupName, bool isReady)
         {
             await Clients.Group(groupName).InvokeAsync("UserReady", username, isReady);
+        }
+
+        public async Task ChangeVideo(string groupName, string videoURL)
+        {
+            await Clients.Group(groupName).InvokeAsync("ChangeVideo", videoURL);
+        }
+
+        public async Task PlayToggle(string groupName, bool isPlaying)
+        {
+            await Clients.Group(groupName).InvokeAsync("PlayToggle", isPlaying);
         }
     }
 }

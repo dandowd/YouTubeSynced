@@ -9,7 +9,9 @@ import { YouTubeService } from './youtube.service';
 })
 
 export class YouTubeComponent implements AfterViewInit, OnDestroy {
+
     constructor(private youTubeService: YouTubeService, private watchService: WatchService) {
+
     }
 
     ChangeReady() {
@@ -18,10 +20,17 @@ export class YouTubeComponent implements AfterViewInit, OnDestroy {
 
     playVideo() {
         this.youTubeService.playVideo();
+        this.watchService.playToggle(this.youTubeService.isPlaying());
+    }
+
+    pauseVideo() {
+        this.youTubeService.pauseVideo();
+        this.watchService.playToggle(this.youTubeService.isPlaying());
     }
 
     changeVideo(id: string) {
         this.youTubeService.changeVideo(id);
+        this.watchService.changeVideo(id);
     }
 
     UserReady() {

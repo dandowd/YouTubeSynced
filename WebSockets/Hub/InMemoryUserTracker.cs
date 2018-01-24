@@ -22,6 +22,11 @@ namespace WebSockets
             return Task.FromResult(_usersOnline.Where(c => c.Value.ConnectionId == connectionId).Select(u => u.Value).FirstOrDefault());
         }
 
+        public Task<string> GetUsername(string connectionId)
+        {
+            return Task.FromResult(_usersOnline.Where(u => u.Value.ConnectionId == connectionId).Select(u => u.Value.Name).FirstOrDefault());
+        }
+
         public Task AddOrUpdateUser(HubConnectionContext connection, UserDetails user)
         {
             _usersOnline.AddOrUpdate(connection, user, (key, oldvalue) => user);

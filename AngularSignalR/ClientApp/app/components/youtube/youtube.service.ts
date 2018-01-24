@@ -7,7 +7,7 @@ export class YouTubeService {
     private width = '640';
     private videoId = '';
     private divId = 'player';
-    private prevState: number;
+    private state: number;
 
     private readonly UNSTARTED = -1;
     private readonly ENDED = 0;
@@ -30,6 +30,7 @@ export class YouTubeService {
                     playerVars: { 'autoplay': 0, 'rel': 0, 'controls': 0, 'start': 0 },
                     events: {
                         'onReady': () => {
+                            console.log('onReady');
                             this.pauseVideo();
                         },
                         'onStateChange': (ev: any) => {
@@ -47,43 +48,62 @@ export class YouTubeService {
         switch (ev.data) {
             case this.UNSTARTED: {
                 console.log('unstarted');
-
-                this.prevState = this.UNSTARTED;
+                this.pauseVideo();
+                this.state = this.UNSTARTED;
                 break;
             }
             case this.ENDED: {
                 console.log('ended');
-
-                this.prevState = this.ENDED;
+                this.state = this.ENDED;
                 break;
             }
             case this.PLAYING: {
                 console.log('playing');
-                if (this.prevState == this.UNSTARTED || this.BUFFERING) {
-                    this.pauseVideo();
-                }
-                this.prevState = this.PLAYING;
+                this.state = this.PLAYING;
                 break;
             }
             case this.PAUSED: {
                 console.log('paused');
+                this.state = this.PAUSED;
                 break;
             }
             case this.BUFFERING: {
-                this.prevState = this.BUFFERING;
-                console.log('prevState set to' + this.prevState);
+                this.state = this.BUFFERING;
                 break;
             }
             case this.VIDEO_CUED: {
                 console.log('video cued');
+                this.state = this.VIDEO_CUED;
                 break;
             }
                 
         }
     }
 
+    isPlaying(): boolean {
+        if (this.state == this.PLAYING) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    changePlaying(isPlaying: boolean) {
+        console.log("playing status" + isPlaying);
+        if (isPlaying) {
+            this.pauseVideo();
+        }
+        else {
+            this.playVideo();
+        }
+    }
+
     changeVideo(id: string) {
-        this.player.loadVideoById(id);
+        if (id !== this.videoId) {
+            this.videoId = id;
+            this.player.loadVideoById(id);
+        }
     }
 
     playVideo() {

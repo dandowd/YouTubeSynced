@@ -1,5 +1,6 @@
 ﻿import { Injectable, Inject, Output, EventEmitter, OnInit } from '@angular/core';
 import { HubConnection } from '@aspnet/signalr-client';
+import { YouTubeService } from '../youtube/youtube.service';
 
 import { WATCH_CONFIG, IWatchConfig } from './watch.config';
 
@@ -19,6 +20,11 @@ export interface ReadyEvent {
     readyChange: boolean;
 }
 
+export interface Message {
+    user: string;
+    message: string;
+}
+
 @Injectable()
 export class WatchService {
     private _hubConnection: HubConnection;
@@ -33,16 +39,16 @@ export class WatchService {
     setEmitter: EventEmitter<UserDetails[]> = new EventEmitter();
     readyStatusEmitter: EventEmitter<ReadyEvent> = new EventEmitter();
 
-    constructor( @Inject(WATCH_CONFIG) private config: IWatchConfig) {
+    constructor( @Inject(WATCH_CONFIG) private config: IWatchConfig, private youtubeService: YouTubeService) {
         this.startSignalR();    
     }
 
     private startSignalR() {
         this._hubConnection = new HubConnection(this.config.apiEndpoint);
 
-        this._hubConnection.on('Send', (data: any) => {
-            const received = `Received: ${data}`;
-
+        this._hubConnection.on('Send', (data: Message) => {
+            const received = `${data}`;
+            console.log(data);
             this.recieveEmitter.emit(received);
         });
 
@@ -64,6 +70,14 @@ export class WatchService {
             const userStatus: ReadyEvent = { user: userName, readyChange: readyStatus }
             console.log(userStatus);
             this.readyStatusEmitter.emit(userStatus);
+        });
+
+        this._hubConnection.on('ChangeVideo', (videoURL: string) => {
+            this.youtubeService.changeVideo(videoURL);
+        });
+
+        this._hubConnection.on('PlayToggle', (isPlaying: boolean) => {
+            this.youtubeService.changePlaying(isPlaying);
         });
 
         this._hubConnection.start()
@@ -91,13 +105,21 @@ export class WatchService {
     }
 
     public sendMessage(message: string): void {
-        const data = `You: ${message}`;
+        const data = `${message}`;
 
         this._hubConnection.invoke('Send', data, this.roomName);
     }
 
+    public changeVideo(videoUrl: string) {
+        this._hubConnection.invoke('ChangeVideo', this.roomName, videoUrl);
+    }
+
     private userReady() {
         this._hubConnection.invoke('UserReady', this.userName, this.roomName, this.isUserReady);
+    }
+
+    public playToggle(isPlaying: boolean) {
+        this._hubConnection.invoke('PlayToggle', this.roomName, isPlaying);
     }
 
     public UserReadyToggle() {

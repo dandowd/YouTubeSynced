@@ -31,3 +31,8 @@ div#list ul li:hover {
     width: 5%;
     float: left;
 }
+
+.userreadymarker{
+    width: 200px;
+    height: 5px;
+}

@@ -14,6 +14,7 @@ namespace WebSockets
         Task AddUserToRoom(HubConnectionContext connection, string groupName);
         Task RemoveUserFromRoom(HubConnectionContext connection, UserDetails user);
         Task<UserDetails> GetUserDetails(string connectionId);
+        Task<string> GetUsername(string connectionId);
 
         event Action<UserDetails[], string, HubConnectionContext> UsersJoined;
         event Action<UserDetails[], string, HubConnectionContext> UsersLeft;

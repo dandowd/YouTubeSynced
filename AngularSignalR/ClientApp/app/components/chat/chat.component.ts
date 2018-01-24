@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { HubConnection } from '@aspnet/signalr-client';
 
-import { WatchService } from '../watch/watch.service';
+import { WatchService, Message } from '../watch/watch.service';
 
 @Component({
     selector: 'app-chat-component',
@@ -13,7 +13,7 @@ export class ChatComponent implements OnInit {
     @Input() roomName: string;
     public async: any;
     message = '';
-    messages: string[] = [];
+    messages: Message[] = [];
 
     constructor(private watchService: WatchService) {
 
@@ -24,7 +24,7 @@ export class ChatComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.watchService.recieveEmitter.subscribe((data: any) => {
+        this.watchService.recieveEmitter.subscribe((data: Message) => {
             console.log(data);
             this.messages.push(data);
         });
