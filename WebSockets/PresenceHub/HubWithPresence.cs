@@ -1,23 +1,24 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using WebSockets.PresenceHub;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebSockets
+namespace WebSockets.PresenceHub
 {
     public class HubWithPresence : Hub
     {
-        private IUserTracker<HubWithPresence> _userTracker;
+        private IUserTracker<Chat> _userTracker;
 
-        public HubWithPresence(IUserTracker<HubWithPresence> userTracker)
+        public HubWithPresence(IUserTracker<Chat> userTracker)
         {
             _userTracker = userTracker;
         }
 
-        public Task<IEnumerable<UserDetails>> GetUsersOnline()
+        public Task<IEnumerable<UserDetails>> GetUsersOnline(string groupname)
         {        
-            return _userTracker.UsersOnline();
+            return _userTracker.UsersOnline(groupname);
         }
 
         public Task<string> GetUsername(string connectionId)
@@ -26,11 +27,6 @@ namespace WebSockets
         }
 
         public Task AddUser(HubConnectionContext connection, UserDetails user)
-        {
-            return _userTracker.AddUser(connection, user);
-        }
-        
-        public Task SignInUser(HubConnectionContext connection, UserDetails user)
         {
             return _userTracker.AddOrUpdateUser(connection, user);
         }

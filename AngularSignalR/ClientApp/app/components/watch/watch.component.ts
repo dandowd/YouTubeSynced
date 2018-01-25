@@ -16,11 +16,14 @@ import { WatchService } from './watch.service';
 export class WatchComponent {
     private roomName: string;
     private userName: string;
+    private guid: string;
     private isLoading = true;
 
     constructor(private route: ActivatedRoute, private watchService: WatchService) {
         this.route.queryParams.subscribe(params => {
             this.userName = params['username'];
+            //this.roomName = params['roomname'];
+            this.guid = params['guid'];
         });
 
         this.route.params.subscribe(params => {
@@ -30,6 +33,7 @@ export class WatchComponent {
 
         this.watchService.roomName = this.roomName;
         this.watchService.userName = this.userName;
+        this.watchService.guid = this.guid;
 
         this.watchService.loadingEmitter.subscribe((data: boolean) => {
             this.isLoading = data;

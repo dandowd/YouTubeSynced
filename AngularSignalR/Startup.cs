@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using AngularSignalR.SignalR;
+using WebSockets.PresenceHub;
 using Microsoft.AspNetCore.SignalR;
 using WebSockets;
+using WebSockets.UserTracker;
 
 namespace AngularSignalR
 {
@@ -27,6 +28,7 @@ namespace AngularSignalR
             services.AddSingleton(typeof(IUserTracker<>), typeof(InMemoryUserTracker<>));
             services.AddSingleton(typeof(DefaultHubLifetimeManager<>), typeof(DefaultHubLifetimeManager<>));
             services.AddSingleton(typeof(HubLifetimeManager<>), typeof(DefaultPresenceHublifetimeManager<>));
+            services.AddSingleton(typeof(IAuthenticator), typeof(Authenticator));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -31,7 +31,7 @@ export class WatchService {
     public async: any;
     public roomName: string;
     public userName: string;
-    public isLoading = true;
+    public guid: string;
     private isUserReady = false;
     loadingEmitter = new EventEmitter<boolean>();
     recieveEmitter = new EventEmitter<any>();
@@ -54,6 +54,7 @@ export class WatchService {
 
         this._hubConnection.on('SetUsersOnline', (usersSet: UserDetails[]) => {
             this.setEmitter.emit(usersSet);
+            this.loadingEmitter.emit(false);
         });
 
         this._hubConnection.on('UsersJoined', (usersJoined: UserDetails) => {
@@ -80,11 +81,13 @@ export class WatchService {
             this.youtubeService.changePlaying(isPlaying);
         });
 
+        this._hubConnection.on('SignInVerification', (signinSuccess: boolean) => {
+
+        });
+
         this._hubConnection.start()
             .then(() => {
-                console.log('Hub connection started')
-                this.isLoading = false;
-                this.loadingEmitter.emit(this.isLoading);
+                console.log('Hub connection started');
                 this.signIn(this.userName, this.roomName);
             })
             .catch(err => {
@@ -93,7 +96,7 @@ export class WatchService {
     }
 
     public signIn(userName: string, groupName: string) {
-        this._hubConnection.invoke('SignInAsync', userName, groupName);
+        this._hubConnection.invoke('SignInAsync', this.guid);
     }
 
     public joinRoom(groupName: string) {

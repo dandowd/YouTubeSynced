@@ -17,12 +17,12 @@ namespace WebSockets
         {
             ConnectionId = connectionId;
             Name = name;
-            ReadyStatus = isAdmin;
+            ReadyStatus = false;
         }
 
         public string ConnectionId { get; }
         public string Name { get; }
         public bool ReadyStatus { get; }
-        public string RoomName { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

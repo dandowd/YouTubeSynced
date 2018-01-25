@@ -15,9 +15,11 @@ namespace WebSockets
         public event Action<UserDetails[], string, HubConnectionContext> UsersJoined;
         public event Action<UserDetails[], string, HubConnectionContext> UsersLeft;
 
-        public Task<IEnumerable<UserDetails>> UsersOnline() => Task.FromResult(_usersOnline.Values.AsEnumerable());
+        public Task<IEnumerable<UserDetails>> UsersOnline(string groupname) => Task.FromResult(_groupMap.Where(u => u.Value == groupname).Select(u => u.Key).AsEnumerable());
 
-        public Task<UserDetails> GetUserDetails(string connectionId)
+        public Task<bool> CheckForUserInRoom(string username, string groupName) => Task.FromResult(_groupMap.Any(u => u.Key.Name == username && u.Value == groupName));
+
+        private Task<UserDetails> GetUserDetails(string connectionId)
         {
             return Task.FromResult(_usersOnline.Where(c => c.Value.ConnectionId == connectionId).Select(u => u.Value).FirstOrDefault());
         }
@@ -34,13 +36,6 @@ namespace WebSockets
             return Task.CompletedTask;
         }
 
-        public Task AddUser(HubConnectionContext connectionContext, UserDetails userDetails)
-        { 
-            _usersOnline.TryAdd(connectionContext, userDetails);
-            
-            return Task.CompletedTask;
-        }
-
         public Task RemoveUser(HubConnectionContext connection)
         {
             _usersOnline.TryRemove(connection, out var userDetails);
@@ -53,7 +48,6 @@ namespace WebSockets
         public async Task AddUserToRoom(HubConnectionContext connection, string groupName)
         {
             var user = await GetUserDetails(connection.ConnectionId);
-            user.RoomName = groupName;
 
             _groupMap.AddOrUpdate(user, groupName, (key, oldvalue) => groupName);
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebSockets.PresenceHub;
 
 namespace WebSockets
 {
@@ -139,8 +140,6 @@ namespace WebSockets
 
         public override async Task AddGroupAsync(string connectionId, string groupName)
         {
-            await _userTracker.AddUserToRoom(_connections.Where(u => u.ConnectionId == connectionId).FirstOrDefault(), groupName);
-
             await _wrappedHubLifetimeManager.AddGroupAsync(connectionId, groupName);
         }
         

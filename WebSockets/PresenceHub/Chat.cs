@@ -1,25 +1,32 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Threading.Tasks;
 using WebSockets;
+using WebSockets.UserTracker;
 
-namespace AngularSignalR.SignalR
+namespace WebSockets.PresenceHub
 {
     public class Chat : HubWithPresence
     {
-        public Chat(IUserTracker<Chat> userTracker) : base(userTracker) { }
+        private IAuthenticator _authenticator;
+
+        public Chat(IUserTracker<Chat> userTracker, IAuthenticator auth) : base(userTracker)
+        {
+            _authenticator = auth;
+        }
 
         public override async Task OnConnectedAsync()
-        {
-            await Clients.Client(Context.ConnectionId).InvokeAsync("SetUsersOnline", await GetUsersOnline());
-
+        { 
             await base.OnConnectedAsync();
         }
         
-        public async Task SignInAsync(string userName, string groupName)
+        public async Task SignInAsync(Guid guid)
         {
-            await SignInUser(Context.Connection, new UserDetails(Context.ConnectionId, userName));
+            var groupname = await _authenticator.PassUser(Context.Connection, guid);
 
-            await Groups.AddAsync(Context.ConnectionId, groupName);
+            await Clients.Client(Context.ConnectionId).InvokeAsync("SetUsersOnline", await GetUsersOnline(groupname));
+
+            await Groups.AddAsync(Context.ConnectionId, groupname);
         }
 
         public async Task LeaveRoom(string userName, string groupName)

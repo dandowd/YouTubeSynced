@@ -31,7 +31,7 @@ export class UserMenuComponent implements Menu {
             var underMouse = document.elementFromPoint(x, y).getBoundingClientRect();
             if (usermenu) {
                 usermenu.style.position = "absolute";
-                usermenu.style.left = x - underMouse.left + 20 + 'px';
+                usermenu.style.left = x - underMouse.left + 25 + 'px';
                 usermenu.style.top = y - 55 + 'px';
             }
         }
