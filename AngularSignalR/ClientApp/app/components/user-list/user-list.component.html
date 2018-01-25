@@ -1,6 +1,7 @@
-﻿<div id="list">
+﻿<user-menu></user-menu>
+<div id="list">
     <ul>
-        <li id="{{user.name}}" *ngFor="let user of users">
+        <li id="{{user.name}}" (click)="toggleUserMenu($event, user.name)" *ngFor="let user of users">
             <div class="readymarker" [ngStyle]="{'background-color': user.readyStatus == true ? 'green' : 'red' }"></div>
             <div class="username">{{user.name}}</div>
         </li>

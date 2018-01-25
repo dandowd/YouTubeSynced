@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { WatchModule } from './components/watch/watch.module';
+import { MenuModule } from './components/menu/menu.module';
 
 import { AppComponent } from './components/app/app.component';
 import { HomeComponent } from './components/home/home.component';
@@ -25,6 +26,7 @@ import { CounterComponent } from './components/counter/counter.component';
         HttpModule,
         FormsModule,
         WatchModule,
+        MenuModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },

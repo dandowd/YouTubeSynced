@@ -21,18 +21,19 @@ div#list ul li:hover {
     box-shadow: 2px 1px 2px #888888;
 }
 
-.username{
+.username {
     width: 95%;
     float: right;
 }
 
-.readymarker{
+.readymarker {
     height: 100%;
     width: 5%;
     float: left;
 }
 
-.userreadymarker{
+.userreadymarker {
     width: 200px;
     height: 5px;
 }
+

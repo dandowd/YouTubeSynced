@@ -1,6 +1,7 @@
-﻿import { Component, DoCheck, EventEmitter } from '@angular/core';
+﻿import { Component, DoCheck, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { WatchService, UserDetails, UserEvent, ReadyEvent } from '../watch/watch.service';
 import { List } from '../../../common/List';
+import { UserMenuComponent } from '../menu/user-menu.component';
 
 @Component({
     selector: 'app-user-list-component',
@@ -8,11 +9,17 @@ import { List } from '../../../common/List';
     styleUrls: ['./user-list.css']
 })
 
-export class UserListComponent implements DoCheck {
+export class UserListComponent implements DoCheck, AfterViewInit {
+    @ViewChild(UserMenuComponent) userMenu: UserMenuComponent;
 
     private users: UserDetails[] = [];
 
+    ngAfterViewInit() {
+        console.log('view init');
+    }
+
     constructor(private watchService: WatchService) {
+
         this.watchService.userEmitter.subscribe((data: UserEvent) => {
             if (data.isJoining) {
                 this.users.push(data.user);
@@ -39,6 +46,12 @@ export class UserListComponent implements DoCheck {
             }
         });
 
+    }
+
+    public toggleUserMenu(event: MouseEvent, username: string) {
+        console.log(event);
+        console.log(username);
+        this.userMenu.toggleMenu(username, event.clientX, event.clientY);
     }
 
     public ngDoCheck() {
